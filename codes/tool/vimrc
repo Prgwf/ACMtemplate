@@ -1,0 +1,23 @@
+set nu
+set history=1000
+
+set tabstop
+set shiftwidth=4
+set smarttab
+
+set cindent
+
+colo evening
+
+set nobackup
+set noswapfile
+
+set mouse=a
+
+map <F5> : call CompileRun()<CR>
+func! CompileRun()
+    exec "w"
+    exec "!g++ % -Wall -std=c++11 -o %<"
+    exec "! ./%<"
+endfunc
+
