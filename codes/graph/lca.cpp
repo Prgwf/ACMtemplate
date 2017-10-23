@@ -1,72 +1,40 @@
-typedef long long ll;
-const int maxn = 100000 + 100;
-const int maxk = 20;
-struct edge
-{
-  int v, w;
-} es[maxn * 2];
-int tot;
 vector<int> G[maxn];
-ll dis[maxn];
-int fa[maxn][maxk];
+int root;
+int fa[mxlg][maxn];
 int depth[maxn];
-int n, m;
-void init()
-{
-  for (int i = 1; i <= n; i++)
-  {
-    G[i].clear();
+
+void dfs(int u, int p, int d) {
+  fa[0][u] = p;
+  depth[u] = d;
+  for (int i = 0; i < G[u].size(); ++i) {
+    if (G[u][i] != p) dfs(G[u][i], u, d + 1);
   }
-  tot = 0;
 }
-void addedge(int u, int v, int w)
-{
-  G[u].push_back(tot);
-  es[tot++] = {v, w};
-  G[v].push_back(tot);
-  es[tot++] = {u, w};
-}
-int lca(int x, int y)
-{
-  if (depth[x] > depth[y]) swap(x, y);
-  for (int k = maxk - 1; k >= 0; k--)
-  {
-    if (depth[fa[y][k]] >= depth[x])
-    {
-      y = fa[y][k];
-    }
-  }
-  if (x == y) return x;
-  for (int k = maxk -1 ; k>= 0; k--)
-  {
-    if (fa[x][k] != fa[y][k])
-    {
-      x = fa[x][k];
-      y = fa[y][k];
-    }
-  }
-  return fa[x][0];
-}
-void dfs(int cur, int parent)
-{
-  fa[cur][0] = parent;
-  for (int k = 1; k < maxk; k++)
-  {
-    fa[cur][k] = fa[fa[cur][k - 1]][k - 1];
-  }
-  for (int eno: G[cur])
-  {
-    edge & e = es[eno];
-    if (e.v != parent)
-    {
-      dis[e.v] = e.w + dis[cur];
-      depth[e.v] = 1 + depth[cur];
-      dfs(e.v, cur);
+
+void init(int V) {
+  dfs(root, -1, 0); // root = 1 ususally...
+  for (int k = 0; k + 1 < mxlg; ++k) {
+    for (int v = 0; v < V; ++v) {
+      if (fa[k][v] < 0) fa[k + 1][v] = -1;
+      else fa[k + 1][v] = fa[k][fa[k][v]];
     }
   }
 }
-ll dist(int u, int v)
-{
-  int _lca = lca(u, v);
-  return dis[u] + dis[v] - 2 * dis[_lca];
+
+int lca(int u, int v) {
+  if (depth[u] > depth[v]) swap(u, v);
+  for (int k = 0; k < mxlg; k++) {
+    if ((depth[v] - depth[u]) >> k & 1) {
+      v = fa[k][v];
+    }
+  }
+  if (v == u) return u;
+  for (int k = mxlg - 1; k >= 0; k--) {
+    if (fa[k][u] != fa[k][v]) {
+      u = fa[k][u];
+      v = fa[k][v];
+    }
+  }
+  return fa[0][u];
 }
+
